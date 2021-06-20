@@ -40,6 +40,8 @@ class WebHookController {
     private var questEvents = [String: Pokestop]()
     private var gymEventLock = Threading.Lock()
     private var gymEvents = [String: Gym]()
+    private var gymBattleEventLock = Threading.Lock()
+    private var gymBattleEvents = [String: Gym]()
     private var gymInfoEventLock = Threading.Lock()
     private var gymInfoEvents = [String: Gym]()
     private var eggEventLock = Threading.Lock()
@@ -106,6 +108,14 @@ class WebHookController {
             gymInfoEventLock.lock()
             gymInfoEvents[gym.id] = gym
             gymInfoEventLock.unlock()
+        }
+    }
+    
+    public func addGymBattleEvent(gym: Gym) {
+        if !self.webhookURLStrings.isEmpty {
+            gymBattleEventLock.lock()
+            gymBattleEvents[gym.id] = gym
+            gymBattleEventLock.unlock()
         }
     }
 
@@ -192,6 +202,12 @@ class WebHookController {
                         self.gymInfoEvents = [String: Gym]()
                         self.gymInfoEventLock.unlock()
                         events += gymInfoEvents.map({$0.value.getWebhookValues(type: "gym-info")})
+
+                        self.gymBattleEventLock.lock()
+                        let gymBattleEvents = self.gymBattleEvents
+                        self.gymBattleEvents = [String: Gym]()
+                        self.gymBattleEventLock.unlock()
+                        events += gymBattleEvents.map({$0.value.getWebhookValues(type: "gym-battle")})
 
                         self.raidEventLock.lock()
                         let raidEvents = self.raidEvents
