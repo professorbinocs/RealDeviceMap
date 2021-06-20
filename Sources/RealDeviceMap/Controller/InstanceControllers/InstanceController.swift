@@ -241,6 +241,78 @@ class InstanceController {
                 accountGroup: accountGroup,
                 isEvent: isEvent
             )
+        case .routeLeveling, .fixedRouteLeveling:
+            let minLevel = instance.data["min_level"] as? UInt8 ?? (instance.data["min_level"] as? Int)?.toUInt8() ?? 0
+            let maxLevel = instance.data["max_level"] as? UInt8 ?? (instance.data["max_level"] as? Int)?.toUInt8() ?? 29
+            let storeData = instance.data["store_data"] as? Bool ?? false
+            let accountGroup = (instance.data["account_group"] as? String)?.emptyToNil()
+            let isEvent = instance.data["is_event"] as? Bool ?? false
+        
+            if instance.type == .routeLeveling {
+                var areaArray = [[Coord]]()
+                if instance.data["area"] as? [[Coord]] != nil {
+                    areaArray = instance.data["area"] as? [[Coord]] ?? [[Coord]]()
+                } else {
+                    let areas = instance.data["area"] as? [[[String: Double]]] ?? [[[String: Double]]]()
+                    var i = 0
+                    for coords in areas {
+                        for coord in coords {
+                            while areaArray.count != i + 1 {
+                                areaArray.append([Coord]())
+                            }
+                            areaArray[i].append(Coord(lat: coord["lat"]!, lon: coord["lon"]!))
+                        }
+                        i += 1
+                    }
+                }
+
+                var areaArrayEmptyInner = [[[CLLocationCoordinate2D]]]()
+                for coords in areaArray {
+                    var polyCoords = [CLLocationCoordinate2D]()
+                    for coord in coords {
+                        polyCoords.append(CLLocationCoordinate2D(latitude: coord.lat, longitude: coord.lon))
+                    }
+                    areaArrayEmptyInner.append([polyCoords])
+                }
+                instanceController = RouteLevelingInstanceController(
+                    name: instance.name,
+                    minLevel: minLevel,
+                    maxLevel: maxLevel,
+                    storeData: storeData,
+                    multiPolygon: MultiPolygon(areaArrayEmptyInner),
+                    type: .normal,
+                    route: [],
+                    accountGroup: accountGroup,
+                    isEvent: isEvent
+                )
+            } else {
+                var coordsArray = [Coord]()
+            
+                if instance.data["area"] as? [Coord] != nil {
+                    coordsArray = instance.data["area"] as? [Coord] ?? [Coord]()
+                } else if instance.data["area"] as? [[Coord]] != nil {
+                    let coordsArrayContainer = instance.data["area"] as? [[Coord]] ?? [[Coord]]()
+                    coordsArray = coordsArrayContainer[0]
+                } else {
+                    let areas = instance.data["area"] as? [[[String: Double]]] ?? [[[String: Double]]]()
+                    for coords in areas {
+                        for coord in coords {
+                            coordsArray.append(Coord(lat: coord["lat"]!, lon: coord["lon"]!))
+                        }
+                    }
+                }
+                instanceController = RouteLevelingInstanceController(
+                    name: instance.name,
+                    minLevel: minLevel,
+                    maxLevel: maxLevel,
+                    storeData: storeData,
+                    multiPolygon: MultiPolygon([[[CLLocationCoordinate2D]]]()),
+                    type: .fixed,
+                    route: coordsArray,
+                    accountGroup: accountGroup,
+                    isEvent: isEvent
+                )
+            }
         }
         instanceController.delegate = AssignmentController.global
         instancesLock.lock()

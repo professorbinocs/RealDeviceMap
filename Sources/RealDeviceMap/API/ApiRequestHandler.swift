@@ -1363,6 +1363,10 @@ class ApiRequestHandler {
                         instanceData["type"] = "Pokemon IV"
                     case .leveling:
                         instanceData["type"] = "Leveling"
+                    case .routeLeveling:
+                        instanceData["type"] = "Route Leveling"
+                    case .fixedRouteLeveling:
+                        instanceData["type"] = "Fixed-Route Leveling"
                     }
 
                     if formatted {

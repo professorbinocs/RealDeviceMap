@@ -25,6 +25,8 @@ class Instance: Hashable {
         case autoQuest = "auto_quest"
         case pokemonIV = "pokemon_iv"
         case leveling = "leveling"
+        case routeLeveling = "route_leveling"
+        case fixedRouteLeveling = "fixed_route_leveling"
 
         static func fromString(_ value: String) -> InstanceType? {
             if value.lowercased() == "circle_pokemon" || value.lowercased() == "circlepokemon" {
@@ -41,6 +43,10 @@ class Instance: Hashable {
                 return .pokemonIV
             } else if value.lowercased() == "leveling" {
                 return .leveling
+            } else if value.lowercased() == "route_leveling" {
+                return .routeLeveling
+            } else if value.lowercased() == "fixed_route_leveling" {
+                return .fixedRouteLeveling
             } else {
                 return nil
             }
