@@ -75,7 +75,22 @@ class Gym: JSONConvertibleObject, WebHookEvent, Hashable {
                 "sponsor_od": sponsorId ?? 0,
                 "ar_scan_eligible": arScanEligible ?? 0
             ]
-        } else if type == "gym-info" {
+        } else if type == "gym-battle" {
+            realType = "gym_battle"
+            message = [
+                "id": id,
+                "name": name ?? "Unknown",
+                "url": url ?? "",
+                "latitude": lat,
+                "longitude": lon,
+                "team": teamId ?? 0,
+                "slots_available": availableSlots ?? 6,
+                "ex_raid_eligible": exRaidEligible ?? 0,
+                "in_battle": inBattle ?? false,
+                "sponsor_od": sponsorId ?? 0,
+                "ar_scan_eligible": arScanEligible ?? 0
+            ]
+        }  else if type == "gym-info" {
             realType = "gym_details"
             message = [
                 "id": id,
@@ -444,9 +459,10 @@ class Gym: JSONConvertibleObject, WebHookEvent, Hashable {
                     WebHookController.global.addRaidEvent(gym: self)
                 }
             }
-            if oldGym!.availableSlots != self.availableSlots ||
-               oldGym!.teamId != self.teamId ||
-               oldGym!.inBattle != self.inBattle {
+            if (self.inBattle ?? false && oldGym!.inBattle != self.inBattle) {
+                WebHookController.global.addGymBattleEvent(gym: self)
+            } else if oldGym!.availableSlots != self.availableSlots ||
+               oldGym!.teamId != self.teamId {
                 WebHookController.global.addGymInfoEvent(gym: self)
             }
         }
