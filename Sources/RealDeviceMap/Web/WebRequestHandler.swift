@@ -2262,6 +2262,10 @@ class WebRequestHandler {
                 data["pokemon_iv_selected"] = true
             case .leveling:
                 data["leveling_selected"] = true
+            case .routeLeveling:
+                data["route_leveling_selected"] = true
+            case .fixedRouteLeveling:
+                data["fixed_route_leveling_selected"] = true
             }
         }
 
@@ -2300,7 +2304,7 @@ class WebRequestHandler {
                 return data
             }
             newCoords = coords
-        } else if type != nil && type! == .autoQuest || type! == .pokemonIV || type! == .leveling {
+        } else if type != nil && type! == .autoQuest || type! == .pokemonIV || type! == .leveling || type! == .routeLeveling || type! == .fixedRouteLeveling {
             var coordArray = [[Coord]]()
             let areaRows = area.components(separatedBy: "\n")
             var currentIndex = 0
@@ -2376,6 +2380,8 @@ class WebRequestHandler {
                 } else if type == .leveling {
                     oldInstance!.data["radius"] = radius
                     oldInstance!.data["store_data"] = storeData
+                } else if type == .routeLeveling || type == .fixedRouteLeveling {
+                    oldInstance!.data["store_data"] = storeData
                 }
                 do {
                     try oldInstance!.update(oldName: instanceName!)
@@ -2409,6 +2415,8 @@ class WebRequestHandler {
                 instanceData["delay_logout"] = delayLogout
             } else if type == .leveling {
                 instanceData["radius"] = radius
+                instanceData["store_data"] = storeData
+            } else if type == .routeLeveling || type == .fixedRouteLeveling {
                 instanceData["store_data"] = storeData
             }
             let instance = Instance(name: name, type: type!, data: instanceData, count: 0)
@@ -2521,6 +2529,10 @@ class WebRequestHandler {
                 data["pokemon_iv_selected"] = true
             case .leveling:
                 data["leveling_selected"] = true
+            case .routeLeveling:
+                data["route_leveling_selected"] = true
+            case .fixedRouteLeveling:
+                data["fixed_route_leveling_selected"] = true
             }
             return data
         }
